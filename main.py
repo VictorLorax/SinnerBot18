@@ -6,68 +6,43 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
-# =========================
-# ADMIN USERNAME
-# =========================
-ADMIN_USERNAME = "https://t.me/SinnerKing"
+ADMIN_USERNAME = "@SinnerKing"
 
-# =========================
-# GROUP & CHANNEL LINKS
-# =========================
 CONNECT_GROUP = "https://t.me/+IsnkwS7RZRU3YTNk"
 REDROOM_GROUP = "https://t.me/+Cb1uEABDl34xZmE8"
-TV_CHANNEL_LINK = "https://t.me/SINNERTV"
+TV_CHANNEL = "https://t.me/SINNERTV"
 
-# =========================
+
 # START COMMAND
-# =========================
 @bot.message_handler(commands=['start'])
 def start(message):
 
-    markup = InlineKeyboardMarkup(row_width=1)
+    markup = InlineKeyboardMarkup()
 
     markup.add(
-        InlineKeyboardButton("💘 Join Connect Group", url=CONNECT_GROUP)
+        InlineKeyboardButton("💘 Connect Group", url=CONNECT_GROUP)
     )
 
     markup.add(
-        InlineKeyboardButton("🌶️ Join Red Room", url=REDROOM_GROUP)
+        InlineKeyboardButton("🌶️ Red Room", url=REDROOM_GROUP)
     )
 
     markup.add(
-        InlineKeyboardButton("📺 Join TV Channel", url=TV_CHANNEL_LINK)
-    )
-
-    markup.add(
-        InlineKeyboardButton(
-            "💘 Contact Admin",
-            url=f"https://t.me/{ADMIN_USERNAME}"
-        )
+        InlineKeyboardButton("📺 TV Channel", url=TV_CHANNEL)
     )
 
     bot.send_message(
         message.chat.id,
         """
-🔥 WELCOME TO SINNER CITY 🔥
+🔥 Welcome to Sinner City 🔥
 
-To enjoy the FULL Sinner City experience,
-join ALL platforms below 👇
-
-💘 Connect Group
-🌶️ Red Room
-📺 TV Channel
-
-⚠️ Members who stay inactive or fail to engage may be removed.
-
-Need a private connect?
-Use the admin button below 👇
+Choose where you want to enter 👇
 """,
         reply_markup=markup
     )
 
-# =========================
+
 # RULES COMMAND
-# =========================
 @bot.message_handler(commands=['rules'])
 def rules(message):
 
@@ -77,19 +52,17 @@ def rules(message):
 🔥 SINNER CITY RULES 🔥
 
 1. Respect all members.
-2. No spam or scams.
+2. No spam.
 3. Verification is ONLY for ladies.
-4. Guys should use connect commands/admin connect.
+4. Guys use connect commands/admin connect.
 5. React to at least 5 admin posts weekly.
-6. Ghost/inactive users may be removed.
-7. No leaking private chats or connects.
-8. Red Room is strictly 18+.
+6. Ghost members may be removed.
+7. No leaking private connects.
 """
     )
 
-# =========================
+
 # ADMIN CONNECT
-# =========================
 @bot.message_handler(commands=['adminconnect'])
 def adminconnect(message):
 
@@ -105,34 +78,29 @@ def adminconnect(message):
     bot.send_message(
         message.chat.id,
         """
-💘 READY FOR A CONNECT?
+💘 Ready for a connect?
 
 Admin helps with:
-
-• FWB Connects
-• Serious Relationships
-• Verified Ladies
-• Premium Connects
+• FWB connects
+• Serious relationships
+• Verified ladies
 
 Click below 👇
 """,
         reply_markup=markup
     )
 
-# =========================
-# MORNING AI BROADCAST
-# =========================
+
+# MORNING MESSAGE
 @bot.message_handler(commands=['morningaibroadcast'])
 def morning(message):
 
     bot.send_message(
         message.chat.id,
         """
-🌅 GOOD MORNING SINNERS 👀
+🌅 Good Morning Sinners 👀
 
 Someone woke up hoping to find their perfect match today 💘
-
-Will it be you?
 
 Need a connect?
 Use:
@@ -140,71 +108,52 @@ Use:
 """
     )
 
-# =========================
-# NIGHT AI MESSAGE
-# =========================
+
+# NIGHT MESSAGE
 @bot.message_handler(commands=['naughtygoodnightaiquote'])
 def night(message):
 
     bot.send_message(
         message.chat.id,
         """
-🌙 NAUGHTY NIGHT THOUGHT 😈
+🌙 Naughty Night Thought 😈
 
-Somebody in this community is secretly hoping for a late-night vibe tonight 👀
+Someone in this group is secretly hoping for a late-night connect 👀
 
-Ready to find your match?
+Ready to find your vibe?
 
 Use:
 /adminconnect
 """
     )
 
-# =========================
+
 # NAUGHTY TRUTH
-# =========================
 @bot.message_handler(commands=['naughtytruth'])
 def truth(message):
 
     bot.send_message(
         message.chat.id,
         """
-😈 NAUGHTY TRUTH
+😈 Naughty Truth:
 
-What’s the boldest thing you’ve ever texted someone at midnight? 👀
+What’s the boldest thing you’ve ever texted someone at midnight?
 """
     )
 
-# =========================
+
 # EXTREME DARE
-# =========================
 @bot.message_handler(commands=['extremedare'])
 def dare(message):
 
     bot.send_message(
         message.chat.id,
         """
-🔥 EXTREME DARE
+🔥 Extreme Dare:
 
 Reply to someone in the group using only emojis for 5 minutes 👀
 """
     )
 
-# =========================
-# BROADCAST
-# =========================
-@bot.message_handler(commands=['broadcast'])
-def broadcast(message):
 
-    if str(message.from_user.username) != ADMIN_USERNAME:
-        return
-
-    bot.reply_to(
-        message,
-        "📢 Broadcast system coming soon."
-    )
-
-# =========================
-# BOT RUN
-# =========================
 bot.infinity_polling()
