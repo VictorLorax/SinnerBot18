@@ -1,7 +1,9 @@
 import telebot
 import os
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 TOKEN = os.getenv("BOT_TOKEN")
+
 bot = telebot.TeleBot(TOKEN)
 
 ADMIN_USERNAME = "https://t.me/SinnerKing"
@@ -26,7 +28,8 @@ def start(message):
     )
 
     markup.add(
-        InlineKeyboardButton("📺 TV Channel", url=TV_GROUP)
+        InlineKeyboardButton("📺TV Channel", url=CHANNEL_LINK)
+    )
 
     bot.send_message(
         message.chat.id,
@@ -68,7 +71,7 @@ def adminconnect(message):
     markup.add(
         InlineKeyboardButton(
             "💘 CONTACT ADMIN",
-            url=f"https://t.me/SinnerKing"
+            url=f"https://t.me/{ADMIN_USERNAME}"
         )
     )
 
