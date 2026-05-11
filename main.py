@@ -2,16 +2,15 @@ import telebot
 import os
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("7711322660:AAG86vybdWmti7n7PESzTiYpb-zNXMoJX8Q")
 
 bot = telebot.TeleBot(TOKEN)
 
-ADMIN_USERNAME = "YOUR_USERNAME"
+ADMIN_USERNAME = "https://t.me/SinnerKing"
 
-CONNECT_GROUP = "https://t.me/yourconnectgroup"
-REDROOM_GROUP = "https://t.me/yourredroom"
-TV_GROUP = "https://t.me/yourtvgroup"
-CHANNEL_LINK = "https://t.me/yourchannel"
+CONNECT_GROUP = "https://t.me/+IsnkwS7RZRU3YTNk"
+REDROOM_GROUP = "https://t.me/+Cb1uEABDl34xZmE8"
+TV CHANNEL_LINK = "https://t.me/SINNERTV"
 
 
 # START COMMAND
@@ -29,12 +28,7 @@ def start(message):
     )
 
     markup.add(
-        InlineKeyboardButton("📺 TV Group", url=TV_GROUP)
-    )
-
-    markup.add(
-        InlineKeyboardButton("📢 Channel", url=CHANNEL_LINK)
-    )
+        InlineKeyboardButton("📺 TV Channel", url=TV_GROUP)
 
     bot.send_message(
         message.chat.id,
@@ -76,7 +70,7 @@ def adminconnect(message):
     markup.add(
         InlineKeyboardButton(
             "💘 CONTACT ADMIN",
-            url=f"https://t.me/{ADMIN_USERNAME}"
+            url=f"https://t.me/SinnerKing"
         )
     )
 
