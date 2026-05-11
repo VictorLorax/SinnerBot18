@@ -1,9 +1,7 @@
 import telebot
 import os
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-
-TOKEN = os.getenv("7711322660:AAG86vybdWmti7n7PESzTiYpb-zNXMoJX8Q")
-
+TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 ADMIN_USERNAME = "https://t.me/SinnerKing"
