@@ -6,29 +6,80 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
+# =========================
+# ADMIN USERNAME
+# =========================
 ADMIN_USERNAME = "@SinnerKing"
 
+# =========================
+# GROUP & CHANNEL LINKS
+# =========================
 CONNECT_GROUP = "https://t.me/+IsnkwS7RZRU3YTNk"
 REDROOM_GROUP = "https://t.me/+Cb1uEABDl34xZmE8"
 TV_CHANNEL = "https://t.me/SINNERTV"
 
+# =========================
+# AUTO WELCOME MESSAGE
+# =========================
+@bot.message_handler(content_types=['new_chat_members'])
+def welcome(message):
 
+    markup = InlineKeyboardMarkup()
+
+    markup.add(
+        InlineKeyboardButton("🔞 Connect Group", url=CONNECT_GROUP)
+    )
+
+    markup.add(
+        InlineKeyboardButton("🥵💦 Red Room", url=REDROOM_GROUP)
+    )
+
+    markup.add(
+        InlineKeyboardButton("📺 TV Channel", url=TV_CHANNEL)
+    )
+
+    for user in message.new_chat_members:
+
+        bot.send_message(
+            message.chat.id,
+            f"""
+🔥 Welcome {user.first_name} to Sinner City 🔥
+
+To enjoy the FULL Sinner City experience 👀
+
+✅ Join all Sinner City platforms below
+✅ Then send /start to activate your experience
+
+⚠️ Members who fail to engage may be removed.
+""",
+            reply_markup=markup
+        )
+
+# =========================
 # START COMMAND
+# =========================
 @bot.message_handler(commands=['start'])
 def start(message):
 
     markup = InlineKeyboardMarkup()
 
     markup.add(
-        InlineKeyboardButton("💘 Connect Group", url=CONNECT_GROUP)
+        InlineKeyboardButton("🔞 Connect Group", url=CONNECT_GROUP)
     )
 
     markup.add(
-        InlineKeyboardButton("🌶️ Red Room", url=REDROOM_GROUP)
+        InlineKeyboardButton("🥵💦 Red Room", url=REDROOM_GROUP)
     )
 
     markup.add(
         InlineKeyboardButton("📺 TV Channel", url=TV_CHANNEL)
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "🔞 CONTACT ADMIN",
+            url=f"https://t.me/{ADMIN_USERNAME}"
+        )
     )
 
     bot.send_message(
@@ -41,8 +92,9 @@ Choose where you want to enter 👇
         reply_markup=markup
     )
 
-
+# =========================
 # RULES COMMAND
+# =========================
 @bot.message_handler(commands=['rules'])
 def rules(message):
 
@@ -61,8 +113,9 @@ def rules(message):
 """
     )
 
-
+# =========================
 # ADMIN CONNECT
+# =========================
 @bot.message_handler(commands=['adminconnect'])
 def adminconnect(message):
 
@@ -70,7 +123,7 @@ def adminconnect(message):
 
     markup.add(
         InlineKeyboardButton(
-            "💘 CONTACT ADMIN",
+            "🔞 CONTACT ADMIN",
             url=f"https://t.me/{ADMIN_USERNAME}"
         )
     )
@@ -78,7 +131,7 @@ def adminconnect(message):
     bot.send_message(
         message.chat.id,
         """
-💘 Ready for a connect?
+🔞 Ready for a connect?
 
 Admin helps with:
 • FWB connects
@@ -90,8 +143,9 @@ Click below 👇
         reply_markup=markup
     )
 
-
+# =========================
 # MORNING MESSAGE
+# =========================
 @bot.message_handler(commands=['morningaibroadcast'])
 def morning(message):
 
@@ -100,7 +154,7 @@ def morning(message):
         """
 🌅 Good Morning Sinners 👀
 
-Someone woke up hoping to find their perfect match today 💘
+Someone woke up hoping to find their perfect match to turn up the heat today 🥵🔞
 
 Need a connect?
 Use:
@@ -108,8 +162,9 @@ Use:
 """
     )
 
-
+# =========================
 # NIGHT MESSAGE
+# =========================
 @bot.message_handler(commands=['naughtygoodnightaiquote'])
 def night(message):
 
@@ -118,7 +173,7 @@ def night(message):
         """
 🌙 Naughty Night Thought 😈
 
-Someone in this group is secretly hoping for a late-night connect 👀
+Someone in this group is secretly hoping you can make her wet and can you cum💦 this night!
 
 Ready to find your vibe?
 
@@ -127,8 +182,9 @@ Use:
 """
     )
 
-
+# =========================
 # NAUGHTY TRUTH
+# =========================
 @bot.message_handler(commands=['naughtytruth'])
 def truth(message):
 
@@ -137,12 +193,13 @@ def truth(message):
         """
 😈 Naughty Truth:
 
-What’s the boldest thing you’ve ever texted someone at midnight?
+If you were to send your naughtiest video on your phone would you, if yes, then show us!
 """
     )
 
-
+# =========================
 # EXTREME DARE
+# =========================
 @bot.message_handler(commands=['extremedare'])
 def dare(message):
 
@@ -151,9 +208,11 @@ def dare(message):
         """
 🔥 Extreme Dare:
 
-Reply to someone in the group using only emojis for 5 minutes 👀
+Reply to someone in the group using only emojis of your fav styles for 2 minutes 👀
 """
     )
 
-
+# =========================
+# BOT RUN
+# =========================
 bot.infinity_polling()
