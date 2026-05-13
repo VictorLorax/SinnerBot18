@@ -1,5 +1,6 @@
 import telebot
 import os
+import random
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -9,7 +10,7 @@ bot = telebot.TeleBot(TOKEN)
 # =========================
 # ADMIN USERNAME
 # =========================
-ADMIN_USERNAME = "@SinnerKing"
+ADMIN_USERNAME = "SinnerKing"
 
 # =========================
 # GROUP & CHANNEL LINKS
@@ -17,6 +18,92 @@ ADMIN_USERNAME = "@SinnerKing"
 CONNECT_GROUP = "https://t.me/+IsnkwS7RZRU3YTNk"
 REDROOM_GROUP = "https://t.me/+Cb1uEABDl34xZmE8"
 TV_CHANNEL = "https://t.me/SINNERTV"
+
+# =========================
+# CHAT IDs
+# =========================
+CONNECT_CHAT_ID = -1000000000000
+REDROOM_CHAT_ID = -1000000000000
+TV_CHANNEL_ID = -1000000000000
+
+# =========================
+# RANDOM MORNING QUOTES
+# =========================
+morning_quotes = [
+
+    "🌅 Someone woke up hoping to meet their perfect vibe today 👀",
+
+    "🔥 A new day in Sinner City means new connects and new energy.",
+
+    "🥵 Somebody is already checking the group hoping you text first.",
+
+    "💘 Today might be the day you find your late-night partner.",
+
+    "👀 Don’t just watch silently… your next vibe may be waiting."
+]
+
+# =========================
+# RANDOM NIGHT QUOTES
+# =========================
+night_quotes = [
+
+    "🌙 Someone in this group secretly wants a midnight vibe tonight 👀",
+
+    "😈 The night is young… and somebody wants attention badly.",
+
+    "🔥 Late-night conversations hit differently in Sinner City.",
+
+    "🥵 Someone is scrolling quietly hoping for a naughty DM.",
+
+    "💘 The bold ones usually get the best connects."
+]
+
+# =========================
+# RANDOM TRUTH QUESTIONS
+# =========================
+truth_questions = [
+
+    "😈 What’s your wildest late-night thought?",
+
+    "🔥 Have you ever had a secret crush inside a group?",
+
+    "👀 What’s something risky you’ve never admitted before?",
+
+    "💘 What instantly catches your attention during chats?",
+
+    "🥵 Have you ever texted someone something bold at midnight?"
+]
+
+# =========================
+# RANDOM DARE QUESTIONS
+# =========================
+dare_questions = [
+
+    "🔥 Reply to someone using only emojis for 2 minutes.",
+
+    "😈 Change your profile emoji for 10 minutes.",
+
+    "👀 Compliment a random member publicly.",
+
+    "🥵 Send a funny GIF in the chat.",
+
+    "💘 DM someone in the group and say hi."
+]
+
+# =========================
+# REACTION BUTTONS
+# =========================
+def reaction_buttons():
+
+    markup = InlineKeyboardMarkup()
+
+    markup.row(
+        InlineKeyboardButton("🔥", callback_data="fire"),
+        InlineKeyboardButton("🥵", callback_data="hot"),
+        InlineKeyboardButton("💘", callback_data="love")
+    )
+
+    return markup
 
 # =========================
 # AUTO WELCOME MESSAGE
@@ -36,6 +123,13 @@ def welcome(message):
 
     markup.add(
         InlineKeyboardButton("📺 TV Channel", url=TV_CHANNEL)
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "🔞 CONTACT ADMIN",
+            url=f"https://t.me/{ADMIN_USERNAME}"
+        )
     )
 
     for user in message.new_chat_members:
@@ -110,7 +204,8 @@ def rules(message):
 5. React to at least 5 admin posts weekly.
 6. Ghost members may be removed.
 7. No leaking private connects.
-"""
+""",
+        reply_markup=reaction_buttons()
     )
 
 # =========================
@@ -149,17 +244,18 @@ Click below 👇
 @bot.message_handler(commands=['morningaibroadcast'])
 def morning(message):
 
+    quote = random.choice(morning_quotes)
+
     bot.send_message(
         message.chat.id,
-        """
-🌅 Good Morning Sinners 👀
-
-Someone woke up hoping to find their perfect match to turn up the heat today 🥵🔞
+        f"""
+{quote}
 
 Need a connect?
 Use:
 /adminconnect
-"""
+""",
+        reply_markup=reaction_buttons()
     )
 
 # =========================
@@ -168,18 +264,19 @@ Use:
 @bot.message_handler(commands=['naughtygoodnightaiquote'])
 def night(message):
 
+    quote = random.choice(night_quotes)
+
     bot.send_message(
         message.chat.id,
-        """
-🌙 Naughty Night Thought 😈
-
-Someone in this group is secretly hoping you can make her wet and can you cum💦 this night!
+        f"""
+{quote}
 
 Ready to find your vibe?
 
 Use:
 /adminconnect
-"""
+""",
+        reply_markup=reaction_buttons()
     )
 
 # =========================
@@ -188,13 +285,12 @@ Use:
 @bot.message_handler(commands=['naughtytruth'])
 def truth(message):
 
+    question = random.choice(truth_questions)
+
     bot.send_message(
         message.chat.id,
-        """
-😈 Naughty Truth:
-
-If you were to send your naughtiest video on your phone would you, if yes, then show us!
-"""
+        question,
+        reply_markup=reaction_buttons()
     )
 
 # =========================
@@ -203,13 +299,138 @@ If you were to send your naughtiest video on your phone would you, if yes, then 
 @bot.message_handler(commands=['extremedare'])
 def dare(message):
 
+    question = random.choice(dare_questions)
+
     bot.send_message(
         message.chat.id,
-        """
-🔥 Extreme Dare:
+        question,
+        reply_markup=reaction_buttons()
+    )
 
-Reply to someone in the group using only emojis of your fav styles for 2 minutes 👀
-"""
+# =========================
+# GET CHAT ID
+# =========================
+@bot.message_handler(commands=['id'])
+def get_id(message):
+
+    bot.reply_to(
+        message,
+        f"🆔 Chat ID: {message.chat.id}"
+    )
+
+# =========================
+# POST TO CONNECT GROUP
+# =========================
+@bot.message_handler(commands=['postconnectgroup'])
+def post_connect(message):
+
+    if message.from_user.username != ADMIN_USERNAME:
+        return
+
+    text = message.text.replace('/postconnectgroup', '').strip()
+
+    if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
+        return
+
+    bot.send_message(
+        CONNECT_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.reply_to(message, "✅ Posted to Connect Group.")
+
+# =========================
+# POST TO RED ROOM
+# =========================
+@bot.message_handler(commands=['postredroom'])
+def post_redroom(message):
+
+    if message.from_user.username != ADMIN_USERNAME:
+        return
+
+    text = message.text.replace('/postredroom', '').strip()
+
+    if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
+        return
+
+    bot.send_message(
+        REDROOM_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.reply_to(message, "✅ Posted to Red Room.")
+
+# =========================
+# POST TO TV CHANNEL
+# =========================
+@bot.message_handler(commands=['posttv'])
+def post_tv(message):
+
+    if message.from_user.username != ADMIN_USERNAME:
+        return
+
+    text = message.text.replace('/posttv', '').strip()
+
+    if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
+        return
+
+    bot.send_message(
+        TV_CHANNEL_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.reply_to(message, "✅ Posted to TV Channel.")
+
+# =========================
+# POST EVERYWHERE
+# =========================
+@bot.message_handler(commands=['postall'])
+def post_all(message):
+
+    if message.from_user.username != ADMIN_USERNAME:
+        return
+
+    text = message.text.replace('/postall', '').strip()
+
+    if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
+        return
+
+    bot.send_message(
+        CONNECT_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.send_message(
+        REDROOM_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.send_message(
+        TV_CHANNEL_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons()
+    )
+
+    bot.reply_to(message, "✅ Posted everywhere.")
+
+# =========================
+# BUTTON REACTION RESPONSE
+# =========================
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+
+    bot.answer_callback_query(
+        call.id,
+        "🔥 Reaction received!"
     )
 
 # =========================
