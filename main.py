@@ -21,6 +21,7 @@ TV_CHANNEL = "https://t.me/SINNERTV"
 
 # =========================
 # CHAT IDs
+# REPLACE WITH REAL IDs
 # =========================
 CONNECT_CHAT_ID = -1000000000000
 REDROOM_CHAT_ID = -1000000000000
@@ -317,6 +318,20 @@ def get_id(message):
         message,
         f"🆔 Chat ID: {message.chat.id}"
     )
+
+# =========================
+# GET CHANNEL ID FROM FORWARDED MSG
+# TEMPORARY TOOL
+# =========================
+@bot.message_handler(func=lambda message: True)
+def get_forward_info(message):
+
+    if message.forward_from_chat:
+
+        bot.reply_to(
+            message,
+            f"CHANNEL ID: {message.forward_from_chat.id}"
+        )
 
 # =========================
 # POST TO CONNECT GROUP
