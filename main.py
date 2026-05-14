@@ -33,6 +33,11 @@ TV_CHANNEL_ID = -1002681661405
 daily_new_members = []
 
 # =========================
+# REACTION STORAGE
+# =========================
+reaction_counts = {}
+
+# =========================
 # RANDOM MORNING QUOTES
 # =========================
 morning_quotes = [
@@ -99,14 +104,34 @@ dare_questions = [
 # =========================
 # REACTION BUTTONS
 # =========================
-def reaction_buttons():
+def reaction_buttons(message_id):
+
+    if message_id not in reaction_counts:
+
+        reaction_counts[message_id] = {
+            "fire": 0,
+            "hot": 0,
+            "love": 0
+        }
 
     markup = InlineKeyboardMarkup()
 
     markup.row(
-        InlineKeyboardButton("🔥", callback_data="fire"),
-        InlineKeyboardButton("🥵", callback_data="hot"),
-        InlineKeyboardButton("💘", callback_data="love")
+
+        InlineKeyboardButton(
+            f"🔥 {reaction_counts[message_id]['fire']}",
+            callback_data=f"fire_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"🥵 {reaction_counts[message_id]['hot']}",
+            callback_data=f"hot_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"💘 {reaction_counts[message_id]['love']}",
+            callback_data=f"love_{message_id}"
+        )
     )
 
     return markup
@@ -170,16 +195,28 @@ Welcome our new sinners today 👀
         )
     )
 
-    bot.send_message(
+    sent_msg1 = bot.send_message(
         CONNECT_CHAT_ID,
         message_text,
         reply_markup=markup
     )
 
-    bot.send_message(
+    bot.edit_message_reply_markup(
+        CONNECT_CHAT_ID,
+        sent_msg1.message_id,
+        reply_markup=reaction_buttons(sent_msg1.message_id)
+    )
+
+    sent_msg2 = bot.send_message(
         REDROOM_CHAT_ID,
         message_text,
         reply_markup=markup
+    )
+
+    bot.edit_message_reply_markup(
+        REDROOM_CHAT_ID,
+        sent_msg2.message_id,
+        reply_markup=reaction_buttons(sent_msg2.message_id)
     )
 
     daily_new_members.clear()
@@ -234,7 +271,7 @@ Choose where you want to enter 👇
 @bot.message_handler(commands=['rules'])
 def rules(message):
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         message.chat.id,
         """
 🔥 SINNER CITY RULES 🔥
@@ -248,8 +285,13 @@ def rules(message):
 7. No leaking private connects.
 8. XP is earned through engagement.
 9. Join all official Sinner City spaces.
-""",
-        reply_markup=reaction_buttons()
+"""
+    )
+
+    bot.edit_message_reply_markup(
+        message.chat.id,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -290,7 +332,7 @@ def morning(message):
 
     quote = random.choice(morning_quotes)
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         message.chat.id,
         f"""
 {quote}
@@ -298,8 +340,13 @@ def morning(message):
 Need a connect?
 Use:
 /adminconnect
-""",
-        reply_markup=reaction_buttons()
+"""
+    )
+
+    bot.edit_message_reply_markup(
+        message.chat.id,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -310,7 +357,7 @@ def night(message):
 
     quote = random.choice(night_quotes)
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         message.chat.id,
         f"""
 {quote}
@@ -319,8 +366,13 @@ Ready to find your vibe?
 
 Use:
 /adminconnect
-""",
-        reply_markup=reaction_buttons()
+"""
+    )
+
+    bot.edit_message_reply_markup(
+        message.chat.id,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -331,10 +383,15 @@ def truth(message):
 
     question = random.choice(truth_questions)
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         message.chat.id,
-        question,
-        reply_markup=reaction_buttons()
+        question
+    )
+
+    bot.edit_message_reply_markup(
+        message.chat.id,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -345,10 +402,15 @@ def dare(message):
 
     question = random.choice(dare_questions)
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         message.chat.id,
-        question,
-        reply_markup=reaction_buttons()
+        question
+    )
+
+    bot.edit_message_reply_markup(
+        message.chat.id,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -374,10 +436,15 @@ def post_connect(message):
         bot.reply_to(message, "⚠️ Type a message.")
         return
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         CONNECT_CHAT_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        f"📢 {text}"
+    )
+
+    bot.edit_message_reply_markup(
+        CONNECT_CHAT_ID,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
     bot.reply_to(message, "✅ Posted to Connect Group.")
@@ -394,10 +461,15 @@ def post_redroom(message):
         bot.reply_to(message, "⚠️ Type a message.")
         return
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         REDROOM_CHAT_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        f"📢 {text}"
+    )
+
+    bot.edit_message_reply_markup(
+        REDROOM_CHAT_ID,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
     bot.reply_to(message, "✅ Posted to Red Room.")
@@ -414,10 +486,15 @@ def post_tv(message):
         bot.reply_to(message, "⚠️ Type a message.")
         return
 
-    bot.send_message(
+    sent_msg = bot.send_message(
         TV_CHANNEL_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        f"📢 {text}"
+    )
+
+    bot.edit_message_reply_markup(
+        TV_CHANNEL_ID,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
     )
 
     bot.reply_to(message, "✅ Posted to TV Channel.")
@@ -434,22 +511,26 @@ def post_all(message):
         bot.reply_to(message, "⚠️ Type a message.")
         return
 
-    bot.send_message(
+    sent1 = bot.send_message(CONNECT_CHAT_ID, f"📢 {text}")
+    sent2 = bot.send_message(REDROOM_CHAT_ID, f"📢 {text}")
+    sent3 = bot.send_message(TV_CHANNEL_ID, f"📢 {text}")
+
+    bot.edit_message_reply_markup(
         CONNECT_CHAT_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        sent1.message_id,
+        reply_markup=reaction_buttons(sent1.message_id)
     )
 
-    bot.send_message(
+    bot.edit_message_reply_markup(
         REDROOM_CHAT_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        sent2.message_id,
+        reply_markup=reaction_buttons(sent2.message_id)
     )
 
-    bot.send_message(
+    bot.edit_message_reply_markup(
         TV_CHANNEL_ID,
-        f"📢 {text}",
-        reply_markup=reaction_buttons()
+        sent3.message_id,
+        reply_markup=reaction_buttons(sent3.message_id)
     )
 
     bot.reply_to(message, "✅ Posted everywhere.")
@@ -481,9 +562,45 @@ def callback_query(call):
 
     else:
 
+        data = call.data.split("_")
+
+        reaction = data[0]
+        message_id = int(data[1])
+
+        if message_id not in reaction_counts:
+            return
+
+        reaction_counts[message_id][reaction] += 1
+
+        markup = InlineKeyboardMarkup()
+
+        markup.row(
+
+            InlineKeyboardButton(
+                f"🔥 {reaction_counts[message_id]['fire']}",
+                callback_data=f"fire_{message_id}"
+            ),
+
+            InlineKeyboardButton(
+                f"🥵 {reaction_counts[message_id]['hot']}",
+                callback_data=f"hot_{message_id}"
+            ),
+
+            InlineKeyboardButton(
+                f"💘 {reaction_counts[message_id]['love']}",
+                callback_data=f"love_{message_id}"
+            )
+        )
+
+        bot.edit_message_reply_markup(
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=markup
+        )
+
         bot.answer_callback_query(
             call.id,
-            "🔥 Reaction received!"
+            "Reaction added 🔥"
         )
 
 # =========================
@@ -494,7 +611,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     daily_welcome_post,
     'cron',
-    hour=23,
+    hour=22,
     minute=0
 )
 
