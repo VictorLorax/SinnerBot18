@@ -2,6 +2,7 @@ import telebot
 import os
 import random
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from apscheduler.schedulers.background import BackgroundScheduler
 
 TOKEN = os.getenv("BOT_TOKEN")
 
@@ -10,7 +11,7 @@ bot = telebot.TeleBot(TOKEN)
 # =========================
 # ADMIN USERNAME
 # =========================
-ADMIN_USERNAME = "SinnerKing"
+ADMIN_USERNAME = "@SinnerKing"
 
 # =========================
 # GROUP & CHANNEL LINKS
@@ -21,11 +22,15 @@ TV_CHANNEL = "https://t.me/SINNERTV"
 
 # =========================
 # CHAT IDs
-# REPLACE WITH REAL IDs
 # =========================
 CONNECT_CHAT_ID = -1003256157463
 REDROOM_CHAT_ID = -1003867191682
 TV_CHANNEL_ID = -1002681661405
+
+# =========================
+# DAILY NEW MEMBERS STORAGE
+# =========================
+daily_new_members = []
 
 # =========================
 # RANDOM MORNING QUOTES
@@ -107,10 +112,42 @@ def reaction_buttons():
     return markup
 
 # =========================
-# AUTO WELCOME MESSAGE
+# STORE NEW MEMBERS
 # =========================
 @bot.message_handler(content_types=['new_chat_members'])
-def welcome(message):
+def collect_new_members(message):
+
+    for user in message.new_chat_members:
+
+        username = user.username
+
+        if username:
+            daily_new_members.append(f"@{username}")
+        else:
+            daily_new_members.append(user.first_name)
+
+# =========================
+# DAILY SHOUTOUT SYSTEM
+# =========================
+def daily_welcome_post():
+
+    if not daily_new_members:
+        return
+
+    members_text = "\n".join(daily_new_members)
+
+    message_text = f"""
+🔥 DAILY SINNER CITY WELCOME 🔥
+
+Welcome our new sinners today 👀
+
+{members_text}
+
+✅ Engage with admin posts daily
+✅ Reactions & activity give XP
+✅ Level up inside Sinner City
+✅ Join all official spaces below 👇
+"""
 
     markup = InlineKeyboardMarkup()
 
@@ -128,27 +165,24 @@ def welcome(message):
 
     markup.add(
         InlineKeyboardButton(
-            "🔞 CONTACT ADMIN",
-            url=f"https://t.me/{ADMIN_USERNAME}"
+            "📜 GROUP RULES",
+            callback_data="show_rules"
         )
     )
 
-    for user in message.new_chat_members:
+    bot.send_message(
+        CONNECT_CHAT_ID,
+        message_text,
+        reply_markup=markup
+    )
 
-        bot.send_message(
-            message.chat.id,
-            f"""
-🔥 Welcome {user.first_name} to Sinner City 🔥
+    bot.send_message(
+        REDROOM_CHAT_ID,
+        message_text,
+        reply_markup=markup
+    )
 
-To enjoy the FULL Sinner City experience 👀
-
-✅ Join all Sinner City platforms below
-✅ Then send /start to activate your experience
-
-⚠️ Members who fail to engage may be removed.
-""",
-            reply_markup=markup
-        )
+    daily_new_members.clear()
 
 # =========================
 # START COMMAND
@@ -168,6 +202,13 @@ def start(message):
 
     markup.add(
         InlineKeyboardButton("📺 TV Channel", url=TV_CHANNEL)
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "📜 GROUP RULES",
+            callback_data="show_rules"
+        )
     )
 
     markup.add(
@@ -205,6 +246,8 @@ def rules(message):
 5. React to at least 5 admin posts weekly.
 6. Ghost members may be removed.
 7. No leaking private connects.
+8. XP is earned through engagement.
+9. Join all official Sinner City spaces.
 """,
         reply_markup=reaction_buttons()
     )
@@ -320,27 +363,10 @@ def get_id(message):
     )
 
 # =========================
-# GET CHANNEL ID FROM FORWARDED MSG
-# TEMPORARY TOOL
-# =========================
-@bot.message_handler(func=lambda message: True)
-def get_forward_info(message):
-
-    if message.forward_from_chat:
-
-        bot.reply_to(
-            message,
-            f"CHANNEL ID: {message.forward_from_chat.id}"
-        )
-
-# =========================
 # POST TO CONNECT GROUP
 # =========================
 @bot.message_handler(commands=['postconnectgroup'])
 def post_connect(message):
-
-    if message.from_user.username != ADMIN_USERNAME:
-        return
 
     text = message.text.replace('/postconnectgroup', '').strip()
 
@@ -362,9 +388,6 @@ def post_connect(message):
 @bot.message_handler(commands=['postredroom'])
 def post_redroom(message):
 
-    if message.from_user.username != ADMIN_USERNAME:
-        return
-
     text = message.text.replace('/postredroom', '').strip()
 
     if not text:
@@ -385,9 +408,6 @@ def post_redroom(message):
 @bot.message_handler(commands=['posttv'])
 def post_tv(message):
 
-    if message.from_user.username != ADMIN_USERNAME:
-        return
-
     text = message.text.replace('/posttv', '').strip()
 
     if not text:
@@ -407,9 +427,6 @@ def post_tv(message):
 # =========================
 @bot.message_handler(commands=['postall'])
 def post_all(message):
-
-    if message.from_user.username != ADMIN_USERNAME:
-        return
 
     text = message.text.replace('/postall', '').strip()
 
@@ -438,15 +455,50 @@ def post_all(message):
     bot.reply_to(message, "✅ Posted everywhere.")
 
 # =========================
-# BUTTON REACTION RESPONSE
+# BUTTON CALLBACKS
 # =========================
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
 
-    bot.answer_callback_query(
-        call.id,
-        "🔥 Reaction received!"
-    )
+    if call.data == "show_rules":
+
+        bot.send_message(
+            call.message.chat.id,
+            """
+🔥 SINNER CITY RULES 🔥
+
+1. Respect all members.
+2. No spam.
+3. Verification is ONLY for ladies.
+4. Guys use connect commands/admin connect.
+5. React to at least 5 admin posts weekly.
+6. Ghost members may be removed.
+7. No leaking private connects.
+8. XP is earned through engagement.
+9. Join all official Sinner City spaces.
+"""
+        )
+
+    else:
+
+        bot.answer_callback_query(
+            call.id,
+            "🔥 Reaction received!"
+        )
+
+# =========================
+# DAILY AUTOMATIC TIMER
+# =========================
+scheduler = BackgroundScheduler()
+
+scheduler.add_job(
+    daily_welcome_post,
+    'cron',
+    hour=23,
+    minute=0
+)
+
+scheduler.start()
 
 # =========================
 # BOT RUN
