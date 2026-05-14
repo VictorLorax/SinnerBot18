@@ -1,7 +1,12 @@
 import telebot
 import os
 import random
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from telebot.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -137,6 +142,73 @@ def reaction_buttons(message_id):
     return markup
 
 # =========================
+# MAIN POST BUTTONS
+# =========================
+def full_post_markup(message_id, download_link):
+
+    if message_id not in reaction_counts:
+
+        reaction_counts[message_id] = {
+            "fire": 0,
+            "hot": 0,
+            "love": 0
+        }
+
+    markup = InlineKeyboardMarkup()
+
+    markup.add(
+        InlineKeyboardButton(
+            "⬇️ Download Here",
+            url=download_link
+        )
+    )
+
+    promo_text = """
+Hello Admin 👋
+
+Name:
+Business/Product:
+
+I want to advertise in Sinner City.
+
+I am ready to pay ₦1000 for promo.
+"""
+
+    markup.add(
+        InlineKeyboardButton(
+            "💰 DM for Ads/Promo",
+            url=f"https://t.me/{ADMIN_USERNAME.replace('@','')}?text={promo_text}"
+        )
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "🔞 Click To Find A Match",
+            url=f"https://t.me/{ADMIN_USERNAME.replace('@','')}"
+        )
+    )
+
+    markup.row(
+
+        InlineKeyboardButton(
+            f"🔥 {reaction_counts[message_id]['fire']}",
+            callback_data=f"fire_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"🥵 {reaction_counts[message_id]['hot']}",
+            callback_data=f"hot_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"💘 {reaction_counts[message_id]['love']}",
+            callback_data=f"love_{message_id}"
+        )
+    )
+
+    return markup
+
+# =========================
 # STORE NEW MEMBERS
 # =========================
 @bot.message_handler(content_types=['new_chat_members'])
@@ -201,22 +273,10 @@ Welcome our new sinners today 👀
         reply_markup=markup
     )
 
-    bot.edit_message_reply_markup(
-        CONNECT_CHAT_ID,
-        sent_msg1.message_id,
-        reply_markup=reaction_buttons(sent_msg1.message_id)
-    )
-
     sent_msg2 = bot.send_message(
         REDROOM_CHAT_ID,
         message_text,
         reply_markup=markup
-    )
-
-    bot.edit_message_reply_markup(
-        REDROOM_CHAT_ID,
-        sent_msg2.message_id,
-        reply_markup=reaction_buttons(sent_msg2.message_id)
     )
 
     daily_new_members.clear()
@@ -251,7 +311,7 @@ def start(message):
     markup.add(
         InlineKeyboardButton(
             "🔞 CONTACT ADMIN",
-            url=f"https://t.me/{ADMIN_USERNAME}"
+            url=f"https://t.me/{ADMIN_USERNAME.replace('@','')}"
         )
     )
 
@@ -279,12 +339,12 @@ def rules(message):
 1. Respect all members.
 2. No spam.
 3. Verification is ONLY for ladies.
-4. Guys use connect commands/admin connect.
-5. React to at least 5 admin posts weekly.
-6. Ghost members may be removed.
-7. No leaking private connects.
-8. XP is earned through engagement.
-9. Join all official Sinner City spaces.
+4. Guys use connect commands/adminconnect
+5. React to admin posts daily
+6. XP is earned through engagement
+7. Ghost members may be removed
+8. No leaking private connects
+9. Join all official Sinner City spaces
 """
     )
 
@@ -305,7 +365,7 @@ def adminconnect(message):
     markup.add(
         InlineKeyboardButton(
             "🔞 CONTACT ADMIN",
-            url=f"https://t.me/{ADMIN_USERNAME}"
+            url=f"https://t.me/{ADMIN_USERNAME.replace('@','')}"
         )
     )
 
@@ -411,6 +471,148 @@ def dare(message):
         message.chat.id,
         sent_msg.message_id,
         reply_markup=reaction_buttons(sent_msg.message_id)
+    )
+
+# =========================
+# POST MEDIA SYSTEM
+# =========================
+@bot.message_handler(commands=['postmedia'])
+def post_media(message):
+
+    if message.from_user.username != ADMIN_USERNAME.replace("@", ""):
+        return
+
+    args = message.text.split(" ")
+
+    if len(args) < 2:
+
+        bot.reply_to(
+            message,
+            """
+Usage:
+
+/postmedia DOWNLOAD_LINK
+
+Reply to a media file.
+"""
+        )
+
+        return
+
+    download_link = args[1]
+
+    if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to a movie/video/document/photo."
+        )
+
+        return
+
+    replied = message.reply_to_message
+
+    caption = """
+🔥 Sinner City Drop 🔥
+
+React below after watching 👇
+"""
+
+    sent_messages = []
+
+    # VIDEO
+    if replied.video:
+
+        sent1 = bot.send_video(
+            CONNECT_CHAT_ID,
+            replied.video.file_id,
+            caption=caption
+        )
+
+        sent2 = bot.send_video(
+            REDROOM_CHAT_ID,
+            replied.video.file_id,
+            caption=caption
+        )
+
+        sent3 = bot.send_video(
+            TV_CHANNEL_ID,
+            replied.video.file_id,
+            caption=caption
+        )
+
+        sent_messages = [sent1, sent2, sent3]
+
+    # DOCUMENT
+    elif replied.document:
+
+        sent1 = bot.send_document(
+            CONNECT_CHAT_ID,
+            replied.document.file_id,
+            caption=caption
+        )
+
+        sent2 = bot.send_document(
+            REDROOM_CHAT_ID,
+            replied.document.file_id,
+            caption=caption
+        )
+
+        sent3 = bot.send_document(
+            TV_CHANNEL_ID,
+            replied.document.file_id,
+            caption=caption
+        )
+
+        sent_messages = [sent1, sent2, sent3]
+
+    # PHOTO
+    elif replied.photo:
+
+        sent1 = bot.send_photo(
+            CONNECT_CHAT_ID,
+            replied.photo[-1].file_id,
+            caption=caption
+        )
+
+        sent2 = bot.send_photo(
+            REDROOM_CHAT_ID,
+            replied.photo[-1].file_id,
+            caption=caption
+        )
+
+        sent3 = bot.send_photo(
+            TV_CHANNEL_ID,
+            replied.photo[-1].file_id,
+            caption=caption
+        )
+
+        sent_messages = [sent1, sent2, sent3]
+
+    else:
+
+        bot.reply_to(
+            message,
+            "⚠️ Unsupported media type."
+        )
+
+        return
+
+    # ADD BUTTONS + REACTIONS
+    for sent in sent_messages:
+
+        bot.edit_message_reply_markup(
+            sent.chat.id,
+            sent.message_id,
+            reply_markup=full_post_markup(
+                sent.message_id,
+                download_link
+            )
+        )
+
+    bot.reply_to(
+        message,
+        "✅ Media posted everywhere."
     )
 
 # =========================
@@ -541,6 +743,7 @@ def post_all(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
 
+    # SHOW RULES
     if call.data == "show_rules":
 
         bot.send_message(
@@ -551,31 +754,45 @@ def callback_query(call):
 1. Respect all members.
 2. No spam.
 3. Verification is ONLY for ladies.
-4. Guys use connect commands/admin connect.
-5. React to at least 5 admin posts weekly.
-6. Ghost members may be removed.
-7. No leaking private connects.
-8. XP is earned through engagement.
-9. Join all official Sinner City spaces.
+4. Guys use connect commands/adminconnect
+5. React to admin posts daily
+6. XP is earned through engagement
+7. Ghost members may be removed
+8. No leaking private connects
+9. Join all official Sinner City spaces
 """
         )
 
-    else:
+        return
 
-        data = call.data.split("_")
+    # REACTION SYSTEM
+    data = call.data.split("_")
 
-        reaction = data[0]
-        message_id = int(data[1])
+    reaction = data[0]
+    message_id = int(data[1])
 
-        if message_id not in reaction_counts:
-            return
+    if message_id not in reaction_counts:
 
-        reaction_counts[message_id][reaction] += 1
+        reaction_counts[message_id] = {
+            "fire": 0,
+            "hot": 0,
+            "love": 0
+        }
 
-        markup = InlineKeyboardMarkup()
+    reaction_counts[message_id][reaction] += 1
 
-        markup.row(
+    try:
 
+        current_markup = call.message.reply_markup
+
+        buttons = []
+
+        if current_markup:
+
+            for row in current_markup.keyboard[:-1]:
+                buttons.append(row)
+
+        buttons.append([
             InlineKeyboardButton(
                 f"🔥 {reaction_counts[message_id]['fire']}",
                 callback_data=f"fire_{message_id}"
@@ -590,7 +807,10 @@ def callback_query(call):
                 f"💘 {reaction_counts[message_id]['love']}",
                 callback_data=f"love_{message_id}"
             )
-        )
+        ])
+
+        markup = InlineKeyboardMarkup()
+        markup.keyboard = buttons
 
         bot.edit_message_reply_markup(
             call.message.chat.id,
@@ -598,10 +818,13 @@ def callback_query(call):
             reply_markup=markup
         )
 
-        bot.answer_callback_query(
-            call.id,
-            "Reaction added 🔥"
-        )
+    except:
+        pass
+
+    bot.answer_callback_query(
+        call.id,
+        "🔥 Reaction added!"
+    )
 
 # =========================
 # DAILY AUTOMATIC TIMER
