@@ -113,7 +113,7 @@ def post_media(message):
     # =========================
     # ADMIN CHECK
     # =========================
-    if message.from_user.username != ADMIN_USERNAME.replace("@", ""):
+    if message.from_user.username != ADMIN_USERNAME.replace("@SinnerKing", ""):
         return
 
     # =========================
@@ -271,7 +271,7 @@ I am ready to pay ₦1000 for promo.
             reaction_counts[sent_msg.message_id] = {
                 "fire": 0,
                 "hot": 0,
-                "laugh": 0
+                "love": 0
             }
 
         # FINAL BUTTON MARKUP
@@ -315,8 +315,8 @@ I am ready to pay ₦1000 for promo.
             ),
 
             InlineKeyboardButton(
-                f"😂 {reaction_counts[sent_msg.message_id]['laugh']}",
-                callback_data=f"laugh_{sent_msg.message_id}"
+                f"💘 {reaction_counts[sent_msg.message_id]['love']}",
+                callback_data=f"love_{sent_msg.message_id}"
             )
         )
 
