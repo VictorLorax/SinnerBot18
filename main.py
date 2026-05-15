@@ -4,9 +4,6 @@ import random
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# =========================
-# BOT TOKEN
-# =========================
 TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
@@ -31,52 +28,81 @@ REDROOM_CHAT_ID = -1003867191682
 TV_CHANNEL_ID = -1002681661405
 
 # =========================
-# STORAGE
+# DAILY NEW MEMBERS STORAGE
 # =========================
 daily_new_members = []
+
+# =========================
+# REACTION STORAGE
+# =========================
 reaction_counts = {}
 
 # =========================
-# RANDOM QUOTES
+# RANDOM MORNING QUOTES
 # =========================
 morning_quotes = [
 
     "🌅 Someone woke up hoping to meet their perfect vibe today 👀",
+
     "🔥 A new day in Sinner City means new connects and new energy.",
+
     "🥵 Somebody is already checking the group hoping you text first.",
+
     "💘 Today might be the day you find your late-night partner.",
+
     "👀 Don’t just watch silently… your next vibe may be waiting."
 ]
 
+# =========================
+# RANDOM NIGHT QUOTES
+# =========================
 night_quotes = [
 
     "🌙 Someone in this group secretly wants a midnight vibe tonight 👀",
+
     "😈 The night is young… and somebody wants attention badly.",
+
     "🔥 Late-night conversations hit differently in Sinner City.",
+
     "🥵 Someone is scrolling quietly hoping for a naughty DM.",
+
     "💘 The bold ones usually get the best connects."
 ]
 
+# =========================
+# RANDOM TRUTH QUESTIONS
+# =========================
 truth_questions = [
 
     "😈 What’s your wildest late-night thought?",
+
     "🔥 Have you ever had a secret crush inside a group?",
+
     "👀 What’s something risky you’ve never admitted before?",
+
     "💘 What instantly catches your attention during chats?",
+
     "🥵 Have you ever texted someone something bold at midnight?"
 ]
 
+# =========================
+# RANDOM DARE QUESTIONS
+# =========================
 dare_questions = [
 
     "🔥 Reply to someone using only emojis for 2 minutes.",
+
     "😈 Change your profile emoji for 10 minutes.",
+
     "👀 Compliment a random member publicly.",
+
     "🥵 Send a funny GIF in the chat.",
+
     "💘 DM someone in the group and say hi."
 ]
 
 # =========================
-# REACTION BUTTON SYSTEM
+# REACTION BUTTONS
 # =========================
 def reaction_buttons(message_id):
 
@@ -85,7 +111,6 @@ def reaction_buttons(message_id):
         reaction_counts[message_id] = {
             "fire": 0,
             "hot": 0,
-            "love": 0,
             "laugh": 0
         }
 
@@ -104,11 +129,6 @@ def reaction_buttons(message_id):
         ),
 
         InlineKeyboardButton(
-            f"💘 {reaction_counts[message_id]['love']}",
-            callback_data=f"love_{message_id}"
-        ),
-
-        InlineKeyboardButton(
             f"😂 {reaction_counts[message_id]['laugh']}",
             callback_data=f"laugh_{message_id}"
         )
@@ -124,14 +144,15 @@ def collect_new_members(message):
 
     for user in message.new_chat_members:
 
-        if user.username:
-            daily_new_members.append(f"@{user.username}")
+        username = user.username
 
+        if username:
+            daily_new_members.append(f"@{username}")
         else:
             daily_new_members.append(user.first_name)
 
 # =========================
-# DAILY WELCOME SYSTEM
+# DAILY SHOUTOUT SYSTEM
 # =========================
 def daily_welcome_post():
 
@@ -166,9 +187,10 @@ Welcome our new sinners today 👀
 ✅ Engage with admin posts daily
 ✅ Reactions & activity give XP
 ✅ Level up inside Sinner City
+✅ Join all official spaces below 👇
 """
 
-    markup = InlineKeyboardMarkup(row_width=1)
+    markup = InlineKeyboardMarkup()
 
     markup.add(
         InlineKeyboardButton(
@@ -198,28 +220,26 @@ Welcome our new sinners today 👀
         )
     )
 
-    sent1 = bot.send_message(
+    sent_msg1 = bot.send_message(
         CONNECT_CHAT_ID,
-        message_text,
-        reply_markup=markup
-    )
-
-    sent2 = bot.send_message(
-        REDROOM_CHAT_ID,
-        message_text,
-        reply_markup=markup
+        message_text
     )
 
     bot.edit_message_reply_markup(
         CONNECT_CHAT_ID,
-        sent1.message_id,
-        reply_markup=reaction_buttons(sent1.message_id)
+        sent_msg1.message_id,
+        reply_markup=markup
+    )
+
+    sent_msg2 = bot.send_message(
+        REDROOM_CHAT_ID,
+        message_text
     )
 
     bot.edit_message_reply_markup(
         REDROOM_CHAT_ID,
-        sent2.message_id,
-        reply_markup=reaction_buttons(sent2.message_id)
+        sent_msg2.message_id,
+        reply_markup=markup
     )
 
     daily_new_members.clear()
@@ -230,7 +250,7 @@ Welcome our new sinners today 👀
 @bot.message_handler(commands=['start'])
 def start(message):
 
-    markup = InlineKeyboardMarkup(row_width=1)
+    markup = InlineKeyboardMarkup()
 
     markup.add(
         InlineKeyboardButton(
@@ -250,6 +270,13 @@ def start(message):
         InlineKeyboardButton(
             "📺 TV Channel",
             url=TV_CHANNEL
+        )
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "📜 GROUP RULES",
+            callback_data="show_rules"
         )
     )
 
@@ -263,9 +290,9 @@ def start(message):
     bot.send_message(
         message.chat.id,
         """
-🔥 Welcome To Sinner City 🔥
+🔥 Welcome to Sinner City 🔥
 
-Choose your destination below 👇
+Choose where you want to enter 👇
 """,
         reply_markup=markup
     )
@@ -279,10 +306,10 @@ def rules(message):
     sent_msg = bot.send_message(
         message.chat.id,
         """
-📜 SINNER CITY RULES
+🔥 SINNER CITY RULES 🔥
 
 1. Respect all members.
-2. No spam or flooding.
+2. No spam or unnecessary flooding.
 3. Verification is ONLY for ladies.
 4. Guys use /adminconnect
 5. React to admin posts daily.
@@ -323,12 +350,14 @@ Admin helps with:
 • FWB connects
 • Serious relationships
 • Verified ladies
+
+Click below 👇
 """,
         reply_markup=markup
     )
 
 # =========================
-# MORNING AI
+# MORNING MESSAGE
 # =========================
 @bot.message_handler(commands=['morningaibroadcast'])
 def morning(message):
@@ -337,7 +366,14 @@ def morning(message):
 
     sent_msg = bot.send_message(
         message.chat.id,
-        quote
+        f"""
+{quote}
+
+Need a connect?
+
+Use:
+/adminconnect
+"""
     )
 
     bot.edit_message_reply_markup(
@@ -347,7 +383,7 @@ def morning(message):
     )
 
 # =========================
-# NIGHT AI
+# NIGHT MESSAGE
 # =========================
 @bot.message_handler(commands=['naughtygoodnightaiquote'])
 def night(message):
@@ -356,7 +392,14 @@ def night(message):
 
     sent_msg = bot.send_message(
         message.chat.id,
-        quote
+        f"""
+{quote}
+
+Ready to find your vibe?
+
+Use:
+/adminconnect
+"""
     )
 
     bot.edit_message_reply_markup(
@@ -366,7 +409,7 @@ def night(message):
     )
 
 # =========================
-# TRUTH COMMAND
+# NAUGHTY TRUTH
 # =========================
 @bot.message_handler(commands=['naughtytruth'])
 def truth(message):
@@ -385,7 +428,7 @@ def truth(message):
     )
 
 # =========================
-# DARE COMMAND
+# EXTREME DARE
 # =========================
 @bot.message_handler(commands=['extremedare'])
 def dare(message):
@@ -404,7 +447,7 @@ def dare(message):
     )
 
 # =========================
-# CHAT ID COMMAND
+# GET CHAT ID
 # =========================
 @bot.message_handler(commands=['id'])
 def get_id(message):
@@ -415,7 +458,7 @@ def get_id(message):
     )
 
 # =========================
-# POST CONNECT TEXT
+# POST TO CONNECT GROUP
 # =========================
 @bot.message_handler(commands=['postconnectgroup'])
 def post_connect(message):
@@ -423,43 +466,39 @@ def post_connect(message):
     text = message.text.replace('/postconnectgroup', '').strip()
 
     if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
         return
 
     sent_msg = bot.send_message(
         CONNECT_CHAT_ID,
-        f"📢 {text}"
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
     )
 
-    bot.edit_message_reply_markup(
-        CONNECT_CHAT_ID,
-        sent_msg.message_id,
-        reply_markup=reaction_buttons(sent_msg.message_id)
-    )
+    bot.reply_to(message, "✅ Posted to Connect Group.")
 
 # =========================
-# POST RED ROOM TEXT
+# POST TO RED ROOM
 # =========================
 @bot.message_handler(commands=['postredroom'])
-def post_red(message):
+def post_redroom(message):
 
     text = message.text.replace('/postredroom', '').strip()
 
     if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
         return
 
     sent_msg = bot.send_message(
         REDROOM_CHAT_ID,
-        f"📢 {text}"
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
     )
 
-    bot.edit_message_reply_markup(
-        REDROOM_CHAT_ID,
-        sent_msg.message_id,
-        reply_markup=reaction_buttons(sent_msg.message_id)
-    )
+    bot.reply_to(message, "✅ Posted to Red Room.")
 
 # =========================
-# POST TV TEXT
+# POST TO TV CHANNEL
 # =========================
 @bot.message_handler(commands=['posttv'])
 def post_tv(message):
@@ -467,21 +506,51 @@ def post_tv(message):
     text = message.text.replace('/posttv', '').strip()
 
     if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
         return
 
     sent_msg = bot.send_message(
         TV_CHANNEL_ID,
-        f"📢 {text}"
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
     )
 
-    bot.edit_message_reply_markup(
-        TV_CHANNEL_ID,
-        sent_msg.message_id,
-        reply_markup=reaction_buttons(sent_msg.message_id)
-    )
+    bot.reply_to(message, "✅ Posted to TV Channel.")
 
 # =========================
-# POST MEDIA TO CONNECT
+# POST ALL TEXT
+# =========================
+@bot.message_handler(commands=['postall'])
+def post_all(message):
+
+    text = message.text.replace('/postall', '').strip()
+
+    if not text:
+        bot.reply_to(message, "⚠️ Type a message.")
+        return
+
+    bot.send_message(
+        CONNECT_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
+    )
+
+    bot.send_message(
+        REDROOM_CHAT_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
+    )
+
+    bot.send_message(
+        TV_CHANNEL_ID,
+        f"📢 {text}",
+        reply_markup=reaction_buttons(0)
+    )
+
+    bot.reply_to(message, "✅ Posted everywhere.")
+
+# =========================
+# POST MEDIA TO CONNECT GROUP
 # =========================
 @bot.message_handler(commands=['postconnectmedia'])
 def post_connect_media(message):
@@ -490,6 +559,11 @@ def post_connect_media(message):
         return
 
     if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to media with:\n/postconnectmedia Caption"
+        )
         return
 
     caption = message.text.replace('/postconnectmedia', '').strip()
@@ -499,6 +573,10 @@ def post_connect_media(message):
 
     promo_text = """
 🔥 SINNER CITY PROMO REQUEST 🔥
+
+Name / Brand:
+Advert Type:
+What are you promoting:
 """
 
     reply_msg = message.reply_to_message
@@ -528,7 +606,14 @@ def post_connect_media(message):
         )
 
     else:
+        bot.reply_to(message, "⚠️ Unsupported media.")
         return
+
+    reaction_counts[sent_msg.message_id] = {
+        "fire": 0,
+        "hot": 0,
+        "laugh": 0
+    }
 
     markup = InlineKeyboardMarkup(row_width=1)
 
@@ -536,6 +621,13 @@ def post_connect_media(message):
         InlineKeyboardButton(
             "⬇️ Download Here",
             url=TV_CHANNEL
+        )
+    )
+
+    markup.add(
+        InlineKeyboardButton(
+            "📢 DM for Ads/Promo",
+            url=f"https://t.me/share/url?url=&text={promo_text}"
         )
     )
 
@@ -559,11 +651,6 @@ def post_connect_media(message):
         ),
 
         InlineKeyboardButton(
-            "💘 0",
-            callback_data=f"love_{sent_msg.message_id}"
-        ),
-
-        InlineKeyboardButton(
             "😂 0",
             callback_data=f"laugh_{sent_msg.message_id}"
         )
@@ -575,31 +662,200 @@ def post_connect_media(message):
         reply_markup=markup
     )
 
+    bot.reply_to(message, "✅ Media posted to Connect Group.")
+
 # =========================
-# CALLBACK SYSTEM
+# POST MEDIA TO RED ROOM
+# =========================
+@bot.message_handler(commands=['postredmedia'])
+def post_red_media(message):
+
+    if message.from_user.username != ADMIN_USERNAME.replace("@", ""):
+        return
+
+    if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to media with:\n/postredmedia Caption"
+        )
+        return
+
+    caption = message.text.replace('/postredmedia', '').strip()
+
+    if not caption:
+        caption = "🔥 New Sinner City Drop 🔥"
+
+    reply_msg = message.reply_to_message
+
+    if reply_msg.photo:
+
+        sent_msg = bot.send_photo(
+            REDROOM_CHAT_ID,
+            reply_msg.photo[-1].file_id,
+            caption=caption
+        )
+
+    elif reply_msg.video:
+
+        sent_msg = bot.send_video(
+            REDROOM_CHAT_ID,
+            reply_msg.video.file_id,
+            caption=caption
+        )
+
+    elif reply_msg.document:
+
+        sent_msg = bot.send_document(
+            REDROOM_CHAT_ID,
+            reply_msg.document.file_id,
+            caption=caption
+        )
+
+    else:
+        bot.reply_to(message, "⚠️ Unsupported media.")
+        return
+
+    reaction_counts[sent_msg.message_id] = {
+        "fire": 0,
+        "hot": 0,
+        "laugh": 0
+    }
+
+    bot.edit_message_reply_markup(
+        REDROOM_CHAT_ID,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
+    )
+
+    bot.reply_to(message, "✅ Media posted to Red Room.")
+
+# =========================
+# POST MEDIA TO TV CHANNEL
+# =========================
+@bot.message_handler(commands=['posttvmedia'])
+def post_tv_media(message):
+
+    if message.from_user.username != ADMIN_USERNAME.replace("@", ""):
+        return
+
+    if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to media with:\n/posttvmedia Caption"
+        )
+        return
+
+    caption = message.text.replace('/posttvmedia', '').strip()
+
+    if not caption:
+        caption = "🔥 New Sinner City Drop 🔥"
+
+    reply_msg = message.reply_to_message
+
+    if reply_msg.photo:
+
+        sent_msg = bot.send_photo(
+            TV_CHANNEL_ID,
+            reply_msg.photo[-1].file_id,
+            caption=caption
+        )
+
+    elif reply_msg.video:
+
+        sent_msg = bot.send_video(
+            TV_CHANNEL_ID,
+            reply_msg.video.file_id,
+            caption=caption
+        )
+
+    elif reply_msg.document:
+
+        sent_msg = bot.send_document(
+            TV_CHANNEL_ID,
+            reply_msg.document.file_id,
+            caption=caption
+        )
+
+    else:
+        bot.reply_to(message, "⚠️ Unsupported media.")
+        return
+
+    reaction_counts[sent_msg.message_id] = {
+        "fire": 0,
+        "hot": 0,
+        "laugh": 0
+    }
+
+    bot.edit_message_reply_markup(
+        TV_CHANNEL_ID,
+        sent_msg.message_id,
+        reply_markup=reaction_buttons(sent_msg.message_id)
+    )
+
+    bot.reply_to(message, "✅ Media posted to TV Channel.")
+
+# =========================
+# CALLBACKS
 # =========================
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
 
-    if "_" not in call.data:
+    if call.data == "show_rules":
+
+        bot.send_message(
+            call.message.chat.id,
+            """
+🔥 SINNER CITY RULES 🔥
+
+1. Respect all members.
+2. No spam or unnecessary flooding.
+3. Verification is ONLY for ladies.
+4. Guys use /adminconnect
+5. React to admin posts daily.
+6. XP is earned through engagement.
+7. Ghost members may be removed.
+8. No leaking private connects.
+9. Stay active in all official spaces.
+"""
+        )
         return
 
-    reaction, message_id = call.data.split("_")
+    data = call.data.split("_")
 
-    message_id = int(message_id)
+    reaction = data[0]
+    message_id = int(data[1])
 
     if message_id not in reaction_counts:
 
         reaction_counts[message_id] = {
             "fire": 0,
             "hot": 0,
-            "love": 0,
             "laugh": 0
         }
 
     reaction_counts[message_id][reaction] += 1
 
-    markup = reaction_buttons(message_id)
+    markup = InlineKeyboardMarkup()
+
+    markup.row(
+
+        InlineKeyboardButton(
+            f"🔥 {reaction_counts[message_id]['fire']}",
+            callback_data=f"fire_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"🥵 {reaction_counts[message_id]['hot']}",
+            callback_data=f"hot_{message_id}"
+        ),
+
+        InlineKeyboardButton(
+            f"😂 {reaction_counts[message_id]['laugh']}",
+            callback_data=f"laugh_{message_id}"
+        )
+    )
 
     bot.edit_message_reply_markup(
         call.message.chat.id,
@@ -609,11 +865,11 @@ def callback_query(call):
 
     bot.answer_callback_query(
         call.id,
-        "Reaction Added 🔥"
+        "Reaction added 🔥"
     )
 
 # =========================
-# DAILY TIMER
+# DAILY AUTOMATIC TIMER
 # =========================
 scheduler = BackgroundScheduler()
 
