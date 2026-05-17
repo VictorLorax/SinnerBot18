@@ -556,6 +556,188 @@ def post_connect_media(message):
     )
 
 # =========================
+# POST MEDIA TO TV CHANNEL
+# =========================
+@bot.message_handler(commands=['posttvmedia'])
+def post_tv_media(message):
+
+    if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to media with:\n/posttvmedia Caption"
+        )
+        return
+
+    caption = message.text.replace('/posttvmedia', '').strip()
+
+    if not caption:
+        caption = "🔥 New TV Channel Drop 🔥"
+
+    reply_msg = message.reply_to_message
+
+    # PHOTO
+    if reply_msg.photo:
+
+        file_id = reply_msg.photo[-1].file_id
+
+        sent_msg = bot.send_photo(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "photo"
+        )
+
+    # VIDEO
+    elif reply_msg.video:
+
+        file_id = reply_msg.video.file_id
+
+        sent_msg = bot.send_video(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "video"
+        )
+
+    # DOCUMENT
+    elif reply_msg.document:
+
+        file_id = reply_msg.document.file_id
+
+        sent_msg = bot.send_document(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "document"
+        )
+
+    else:
+
+        bot.reply_to(
+            message,
+            "⚠️ Unsupported media."
+        )
+        return
+
+    bot.edit_message_reply_markup(
+        TV_CHANNEL_ID,
+        sent_msg.message_id,
+        reply_markup=media_buttons(sent_msg.message_id)
+    )
+
+    bot.reply_to(
+        message,
+        "✅ Media posted to TV Channel."
+    )
+
+# =========================
+# POST MEDIA TO RED ROOM
+# =========================
+@bot.message_handler(commands=['postredmedia'])
+def post_red_media(message):
+
+    if not message.reply_to_message:
+
+        bot.reply_to(
+            message,
+            "⚠️ Reply to media with:\n/postredmedia Caption"
+        )
+        return
+
+    caption = message.text.replace('/postredmedia', '').strip()
+
+    if not caption:
+        caption = "🔥 New Red Room Drop 🔥"
+
+    reply_msg = message.reply_to_message
+
+    # PHOTO
+    if reply_msg.photo:
+
+        file_id = reply_msg.photo[-1].file_id
+
+        sent_msg = bot.send_photo(
+            REDROOM_CHAT_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "photo"
+        )
+
+    # VIDEO
+    elif reply_msg.video:
+
+        file_id = reply_msg.video.file_id
+
+        sent_msg = bot.send_video(
+            REDROOM_CHAT_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "video"
+        )
+
+    # DOCUMENT
+    elif reply_msg.document:
+
+        file_id = reply_msg.document.file_id
+
+        sent_msg = bot.send_document(
+            REDROOM_CHAT_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(
+            sent_msg.message_id,
+            file_id,
+            "document"
+        )
+
+    else:
+
+        bot.reply_to(
+            message,
+            "⚠️ Unsupported media."
+        )
+        return
+
+    bot.edit_message_reply_markup(
+        REDROOM_CHAT_ID,
+        sent_msg.message_id,
+        reply_markup=media_buttons(sent_msg.message_id)
+    )
+
+    bot.reply_to(
+        message,
+        "✅ Media posted to Red Room."
+    )
+
+# =========================
 # ADS FORM
 # =========================
 def start_ads_form(user_id):
