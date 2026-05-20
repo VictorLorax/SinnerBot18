@@ -12,16 +12,12 @@ TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 # =========================
-# ADMIN INFO
+# ADMIN USERNAME
 # =========================
 ADMIN_USERNAME = "@SinnerKing"
 
-# BETTER: replace with your real Telegram numeric ID
-# Example:
-# ADMIN_ID = 123456789
-
 # =========================
-# LINKS
+# GROUP LINKS
 # =========================
 CONNECT_GROUP = "https://t.me/+IsnkwS7RZRU3YTNk"
 REDROOM_GROUP = "https://t.me/+Cb1uEABDl34xZmE8"
@@ -38,12 +34,15 @@ TV_CHANNEL_ID = -1002681661405
 # STORAGE
 # =========================
 daily_new_members = []
+
 reaction_counts = {}
+
 media_store = {}
+
 user_states = {}
 
 # =========================
-# QUOTES
+# RANDOM QUOTES
 # =========================
 morning_quotes = [
 
@@ -53,9 +52,7 @@ morning_quotes = [
 
     "🥵 Somebody is already checking the group hoping you text first.",
 
-    "💘 Today might be the day you find your late-night partner.",
-
-    "👀 Don’t just watch silently… your next vibe may be waiting."
+    "💘 Today might be the day you find your late-night partner."
 ]
 
 night_quotes = [
@@ -64,11 +61,7 @@ night_quotes = [
 
     "😈 The night is young… and somebody wants attention badly.",
 
-    "🔥 Late-night conversations hit differently in Sinner City.",
-
-    "🥵 Someone is scrolling quietly hoping for a naughty DM.",
-
-    "💘 The bold ones usually get the best connects."
+    "🔥 Late-night conversations hit differently in Sinner City."
 ]
 
 truth_questions = [
@@ -77,11 +70,7 @@ truth_questions = [
 
     "🔥 Have you ever had a secret crush inside a group?",
 
-    "👀 What’s something risky you’ve never admitted before?",
-
-    "💘 What instantly catches your attention during chats?",
-
-    "🥵 Have you ever texted someone something bold at midnight?"
+    "👀 What’s something risky you’ve never admitted before?"
 ]
 
 dare_questions = [
@@ -90,11 +79,7 @@ dare_questions = [
 
     "😈 Change your profile emoji for 10 minutes.",
 
-    "👀 Compliment a random member publicly.",
-
-    "🥵 Send a funny GIF in the chat.",
-
-    "💘 DM someone in the group and say hi."
+    "👀 Compliment a random member publicly."
 ]
 
 # =========================
@@ -147,7 +132,7 @@ def send_download(chat_id, message_id):
         )
 
 # =========================
-# BUTTON SYSTEM
+# MEDIA BUTTONS
 # =========================
 def media_buttons(message_id):
 
@@ -161,7 +146,6 @@ def media_buttons(message_id):
 
     markup = InlineKeyboardMarkup(row_width=1)
 
-    # DOWNLOAD
     markup.add(
         InlineKeyboardButton(
             "⬇️ Download File",
@@ -169,7 +153,6 @@ def media_buttons(message_id):
         )
     )
 
-    # ADS
     markup.add(
         InlineKeyboardButton(
             "📢 DM for Ads/Promo",
@@ -177,7 +160,6 @@ def media_buttons(message_id):
         )
     )
 
-    # MATCH
     markup.add(
         InlineKeyboardButton(
             "🔞 Click To Find A Match",
@@ -185,7 +167,6 @@ def media_buttons(message_id):
         )
     )
 
-    # REACTIONS
     markup.row(
 
         InlineKeyboardButton(
@@ -218,6 +199,7 @@ def collect_new_members(message):
 
         if username:
             daily_new_members.append(f"@{username}")
+
         else:
             daily_new_members.append(user.first_name)
 
@@ -231,67 +213,21 @@ def daily_welcome_post():
 
     members_text = "\n".join(daily_new_members)
 
-    text = f"""
+    bot.send_message(
+        CONNECT_CHAT_ID,
+        f"""
 🔥 DAILY SINNER CITY WELCOME 🔥
-
-Welcome our new sinners today 👀
 
 {members_text}
 
-━━━━━━━━━━━━━━━
-
-📜 SINNER CITY RULES
-
-1. Respect all members.
-2. No spam.
-3. Verification is ONLY for ladies.
-4. Guys use /adminconnect
-5. React to admin posts daily.
-6. XP is earned through engagement.
-7. Ghost members may be removed.
-8. No leaking private connects.
-9. Stay active in all official spaces.
+Welcome to Sinner City 👀
 """
-
-    markup = InlineKeyboardMarkup()
-
-    markup.add(
-        InlineKeyboardButton(
-            "🔞 Connect Group",
-            url=CONNECT_GROUP
-        )
-    )
-
-    markup.add(
-        InlineKeyboardButton(
-            "🥵💦 Red Room",
-            url=REDROOM_GROUP
-        )
-    )
-
-    markup.add(
-        InlineKeyboardButton(
-            "📺 TV Channel",
-            url=TV_CHANNEL
-        )
-    )
-
-    bot.send_message(
-        CONNECT_CHAT_ID,
-        text,
-        reply_markup=markup
-    )
-
-    bot.send_message(
-        REDROOM_CHAT_ID,
-        text,
-        reply_markup=markup
     )
 
     daily_new_members.clear()
 
 # =========================
-# START COMMAND
+# START
 # =========================
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -330,8 +266,6 @@ def start(message):
         message.chat.id,
         """
 🔥 Welcome To Sinner City 🔥
-
-Choose where you want to enter 👇
 """,
         reply_markup=markup
     )
@@ -349,8 +283,8 @@ def rules(message):
 
 1. Respect members
 2. No spam
-3. No leaks
-4. Stay active
+3. Stay active
+4. No leaks
 """
     )
 
@@ -378,12 +312,9 @@ def adminconnect(message):
     bot.send_message(
         message.chat.id,
         """
-🔞 Ready for a connect?
+🔞 Need a connect?
 
-Admin helps with:
-• FWB connects
-• Serious relationships
-• Verified ladies
+Click below 👇
 """,
         reply_markup=markup
     )
@@ -471,21 +402,12 @@ def dare(message):
 def post_connect_media(message):
 
     if not message.reply_to_message:
-
-        bot.reply_to(
-            message,
-            "⚠️ Reply to media with:\n/postconnectmedia Caption"
-        )
         return
 
     caption = message.text.replace('/postconnectmedia', '').strip()
 
-    if not caption:
-        caption = "🔥 New Sinner City Drop 🔥"
-
     reply_msg = message.reply_to_message
 
-    # PHOTO
     if reply_msg.photo:
 
         file_id = reply_msg.photo[-1].file_id
@@ -496,13 +418,8 @@ def post_connect_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "photo"
-        )
+        save_media(sent_msg.message_id, file_id, "photo")
 
-    # VIDEO
     elif reply_msg.video:
 
         file_id = reply_msg.video.file_id
@@ -513,13 +430,8 @@ def post_connect_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "video"
-        )
+        save_media(sent_msg.message_id, file_id, "video")
 
-    # DOCUMENT
     elif reply_msg.document:
 
         file_id = reply_msg.document.file_id
@@ -530,18 +442,9 @@ def post_connect_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "document"
-        )
+        save_media(sent_msg.message_id, file_id, "document")
 
     else:
-
-        bot.reply_to(
-            message,
-            "⚠️ Unsupported media."
-        )
         return
 
     bot.edit_message_reply_markup(
@@ -550,124 +453,19 @@ def post_connect_media(message):
         reply_markup=media_buttons(sent_msg.message_id)
     )
 
-    bot.reply_to(
-        message,
-        "✅ Media posted."
-    )
-
 # =========================
-# POST MEDIA TO TV CHANNEL
-# =========================
-@bot.message_handler(commands=['posttvmedia'])
-def post_tv_media(message):
-
-    if not message.reply_to_message:
-
-        bot.reply_to(
-            message,
-            "⚠️ Reply to media with:\n/posttvmedia Caption"
-        )
-        return
-
-    caption = message.text.replace('/posttvmedia', '').strip()
-
-    if not caption:
-        caption = "🔥 New TV Channel Drop 🔥"
-
-    reply_msg = message.reply_to_message
-
-    # PHOTO
-    if reply_msg.photo:
-
-        file_id = reply_msg.photo[-1].file_id
-
-        sent_msg = bot.send_photo(
-            TV_CHANNEL_ID,
-            file_id,
-            caption=caption
-        )
-
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "photo"
-        )
-
-    # VIDEO
-    elif reply_msg.video:
-
-        file_id = reply_msg.video.file_id
-
-        sent_msg = bot.send_video(
-            TV_CHANNEL_ID,
-            file_id,
-            caption=caption
-        )
-
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "video"
-        )
-
-    # DOCUMENT
-    elif reply_msg.document:
-
-        file_id = reply_msg.document.file_id
-
-        sent_msg = bot.send_document(
-            TV_CHANNEL_ID,
-            file_id,
-            caption=caption
-        )
-
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "document"
-        )
-
-    else:
-
-        bot.reply_to(
-            message,
-            "⚠️ Unsupported media."
-        )
-        return
-
-    bot.edit_message_reply_markup(
-        TV_CHANNEL_ID,
-        sent_msg.message_id,
-        reply_markup=media_buttons(sent_msg.message_id)
-    )
-
-    bot.reply_to(
-        message,
-        "✅ Media posted to TV Channel."
-    )
-
-# =========================
-# POST MEDIA TO RED ROOM
+# POST RED MEDIA
 # =========================
 @bot.message_handler(commands=['postredmedia'])
 def post_red_media(message):
 
     if not message.reply_to_message:
-
-        bot.reply_to(
-            message,
-            "⚠️ Reply to media with:\n/postredmedia Caption"
-        )
         return
 
     caption = message.text.replace('/postredmedia', '').strip()
 
-    if not caption:
-        caption = "🔥 New Red Room Drop 🔥"
-
     reply_msg = message.reply_to_message
 
-    # PHOTO
     if reply_msg.photo:
 
         file_id = reply_msg.photo[-1].file_id
@@ -678,13 +476,8 @@ def post_red_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "photo"
-        )
+        save_media(sent_msg.message_id, file_id, "photo")
 
-    # VIDEO
     elif reply_msg.video:
 
         file_id = reply_msg.video.file_id
@@ -695,13 +488,8 @@ def post_red_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "video"
-        )
+        save_media(sent_msg.message_id, file_id, "video")
 
-    # DOCUMENT
     elif reply_msg.document:
 
         file_id = reply_msg.document.file_id
@@ -712,18 +500,9 @@ def post_red_media(message):
             caption=caption
         )
 
-        save_media(
-            sent_msg.message_id,
-            file_id,
-            "document"
-        )
+        save_media(sent_msg.message_id, file_id, "document")
 
     else:
-
-        bot.reply_to(
-            message,
-            "⚠️ Unsupported media."
-        )
         return
 
     bot.edit_message_reply_markup(
@@ -732,9 +511,62 @@ def post_red_media(message):
         reply_markup=media_buttons(sent_msg.message_id)
     )
 
-    bot.reply_to(
-        message,
-        "✅ Media posted to Red Room."
+# =========================
+# POST TV MEDIA
+# =========================
+@bot.message_handler(commands=['posttvmedia'])
+def post_tv_media(message):
+
+    if not message.reply_to_message:
+        return
+
+    caption = message.text.replace('/posttvmedia', '').strip()
+
+    reply_msg = message.reply_to_message
+
+    if reply_msg.photo:
+
+        file_id = reply_msg.photo[-1].file_id
+
+        sent_msg = bot.send_photo(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(sent_msg.message_id, file_id, "photo")
+
+    elif reply_msg.video:
+
+        file_id = reply_msg.video.file_id
+
+        sent_msg = bot.send_video(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(sent_msg.message_id, file_id, "video")
+
+    elif reply_msg.document:
+
+        file_id = reply_msg.document.file_id
+
+        sent_msg = bot.send_document(
+            TV_CHANNEL_ID,
+            file_id,
+            caption=caption
+        )
+
+        save_media(sent_msg.message_id, file_id, "document")
+
+    else:
+        return
+
+    bot.edit_message_reply_markup(
+        TV_CHANNEL_ID,
+        sent_msg.message_id,
+        reply_markup=media_buttons(sent_msg.message_id)
     )
 
 # =========================
@@ -831,8 +663,6 @@ I ACCEPT
 
 📢 Promotion:
 {state['promo']}
-
-💰 Accepted ₦1000 fee.
 """
         )
 
@@ -882,7 +712,7 @@ I ACCEPT
 📍 Location:
 {state['location']}
 
-🔞 Connect Type:
+💘 Connect:
 {state['connect']}
 """
         )
@@ -910,8 +740,8 @@ def callback_query(call):
 
 1. Respect members
 2. No spam
-3. No leaks
-4. Stay active
+3. Stay active
+4. No leaks
 """
         )
         return
@@ -928,12 +758,11 @@ def callback_query(call):
 
         bot.answer_callback_query(
             call.id,
-            "⬇️ Download sent to your DM."
+            "⬇️ Download sent to DM."
         )
-
         return
 
-    # ADS FORM
+    # ADS
     if call.data == "ads_form":
 
         start_ads_form(call.from_user.id)
@@ -942,10 +771,9 @@ def callback_query(call):
             call.id,
             "📢 Check your DM."
         )
-
         return
 
-    # MATCH FORM
+    # MATCH
     if call.data == "match_form":
 
         start_match_form(call.from_user.id)
@@ -954,13 +782,13 @@ def callback_query(call):
             call.id,
             "🔞 Check your DM."
         )
-
         return
 
     # REACTIONS
     data = call.data.split("_")
 
     reaction = data[0]
+
     message_id = int(data[1])
 
     if message_id not in reaction_counts:
@@ -985,7 +813,7 @@ def callback_query(call):
     )
 
 # =========================
-# SCHEDULER
+# DAILY SCHEDULER
 # =========================
 scheduler = BackgroundScheduler()
 
@@ -999,8 +827,6 @@ scheduler.add_job(
 scheduler.start()
 
 # =========================
-# BOT RUN
+# RUN BOT
 # =========================
-print("🔥 Sinner City Bot Running...")
-
 bot.infinity_polling()
